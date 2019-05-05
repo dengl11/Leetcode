@@ -1,41 +1,37 @@
-class DSU:
-    def __init__(self, N):
-        self.p = range(N)
-
-    def find(self, x):
-        if self.p[x] != x:
-            self.p[x] = self.find(self.p[x])
-        return self.p[x]
-
-    def union(self, x, y):
-        xr = self.find(x)
-        yr = self.find(y)
-        self.p[xr] = yr
-
-class Solution(object):
-    def largestComponentSize(self, A):
-        B = []
-        for x in A:
-            facs = []
-            d = 2
-            while d * d <= x:
-                if x % d == 0:
-                    while x % d == 0:
-                        x /= d
-                    facs.append(d)
-                d += 1
-
-            if x > 1 or not facs:
-                facs.append(x)
-            B.append(facs)
-
-        primes = list({p for facs in B for p in facs})
-        prime_to_index = {p: i for i, p in enumerate(primes)}
-
-        dsu = DSU(len(primes))
-        for facs in B:
-            for x in facs:
-                dsu.union(prime_to_index[facs[0]], prime_to_index[x])
-
-        count = collections.Counter(dsu.find(prime_to_index[facs[0]]) for facs in B)
-        return max(count.values())
+from collections import defaultdict, Counter
+from functools import reduce
+class Solution:
+    def largestComponentSize(self, A: List[int]) -> int:
+        def find(i):
+            if uf.get(i, i) != i:
+                uf[i] = find(uf[i])
+            return uf.get(i, i)
+        
+        def union(i, j):
+            uf[find(i)] = find(j)
+        
+        facs = []
+        for i, x in enumerate(A):
+            j = 2
+            curr = []
+            while j * j <= x:
+                if x % j == 0:
+                    while x % j == 0:
+                        x //= j
+                    curr.append(j)
+                j += 1
+            if x > 1 or not curr:
+                curr.append(x)
+            facs.append(curr)
+        # primes = list({p for f in facs for p in f})
+        # fac2idx = {p: i for i, p in enumerate(primes)}
+        
+        fac2idx = {x:i for (i, x) in enumerate(list({p for f in facs for p in f}))}
+        uf = {i:i for i in range(len(fac2idx))}
+        for f in facs:
+            for x in f:
+                union(fac2idx[x], fac2idx[f[0]])
+        
+        clusters = Counter(find(fac2idx[f[0]]) for f in facs)
+        
+        return max(clusters.values())
