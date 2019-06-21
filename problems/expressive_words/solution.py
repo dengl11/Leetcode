@@ -1,17 +1,15 @@
 from itertools import groupby
 class Solution:
     def expressiveWords(self, S: str, words: List[str]) -> int:
-        def hash(w):
-            return [(k, len(list(v))) for (k, v) in groupby(w)]
-        s = hash(S)
-        def match(w):
-            w = hash(w)
-            if len(w) != len(s): return False
-            for i in range(len(w)):
-                if w[i][0] != s[i][0]: return False
-                if s[i][1] < w[i][1]: return False
-                if s[i][1] < 3 and s[i][1] != w[i][1]:
-                    return False
+        base = [(x[0], len(list(x[1]))) for x in groupby(S)]
+        def valid(w):
+            curr = [(x[0], len(list(x[1]))) for x in groupby(w)]
+            if len(curr) != len(base): return False
+            for (c1, cnt1), (c2, cnt2) in zip(base, curr):
+                if c1 != c2 or cnt2 > cnt1: return False
+                if cnt1 == cnt2: continue
+                if cnt1 < 3: return False
             return True
-        
-        return sum(match(w) for w in words)
+            
+        return len([w for w in words if valid(w)])
+            
