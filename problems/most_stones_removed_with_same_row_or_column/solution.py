@@ -1,26 +1,21 @@
 from collections import defaultdict
-
 class Solution:
     def removeStones(self, stones: List[List[int]]) -> int:
-        unions = {}
-        def find(i):
-            if unions[i] != i:
-                unions[i] = find(unions[i])
-            return unions[i]
-        
-        def union(i, j):
-            unions[find(i)] = find(j)
-        
-        
-        xs = defaultdict(list)
-        ys = defaultdict(list)
-        for i, (x, y) in enumerate(stones):
-            unions[i] = i
-            if xs.get(x, []):
-                union(i, xs[x][0])
-            xs[x].append(i)
-            if ys.get(y, []):
-                union(i, ys[y][0])
-            ys[y].append(i)
-        return len(stones) - len(set(find(i) for i in range(len(stones))))
-            
+        stones = [tuple(x) for x in stones]
+        row, col = defaultdict(list), defaultdict(list)
+        for i, j in stones:
+            row[i].append((i, j))
+            col[j].append((i, j))
+        visited = set()
+        def dfs(i, j):
+            visited.add((i, j))
+            ans = 1
+            for ni, nj in row[i] + col[j]:
+                if (ni, nj) in visited: continue
+                ans += dfs(ni, nj)
+            return ans
+        ans = 0
+        for i, j in stones:
+            if (i, j) in visited: continue
+            ans += dfs(i, j) - 1
+        return ans
