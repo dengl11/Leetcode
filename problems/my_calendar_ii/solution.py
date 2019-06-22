@@ -1,15 +1,24 @@
-from bisect import bisect_right, insort, bisect_left
+from bisect import insort
 class MyCalendarTwo:
 
     def __init__(self):
-        self.events = []
-        self.overlaps = []
+        self.starts = []
+        self.ends = []
         
+
     def book(self, start: int, end: int) -> bool:
-        for s, t in self.overlaps:
-            if t > start and s < end: return False
-        for (s, t) in self.events:
-            if (s < end and t > start):
-                self.overlaps.append((max(s, start), min(t, end)))
-        self.events.append((start, end))
+        insort(self.starts, start)
+        insort(self.ends, end)
+        curr = 0
+        i = 0
+        for j, e in enumerate(self.ends):
+            while i < len(self.starts) and self.starts[i] < e:
+                curr += 1
+                i += 1
+            if curr >= 3: 
+                self.starts.remove(start)
+                self.ends.remove(end)
+                return False
+            curr -= 1
         return True
+        
