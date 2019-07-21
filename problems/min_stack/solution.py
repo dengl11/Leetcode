@@ -6,27 +6,32 @@ class MinStack:
         """
         initialize your data structure here.
         """
-        self.nums = Counter()
         self.stack = []
-        self.q = []
+        self.min = None
         
 
     def push(self, x: int) -> None:
-        self.stack.append(x)
-        self.nums[x] += 1
-        heappush(self.q, x)
-        
+        if self.min is None: 
+            self.min = x
+            self.stack.append(0)
+        else:
+            self.stack.append(x - self.min)
+            self.min = min(self.min, x)
+            
 
     def pop(self) -> None:
         x = self.stack.pop()
-        self.nums[x] -= 1
-        
+        if x < 0:
+            self.min -= x
+        if not self.stack:
+            self.min = None
 
     def top(self) -> int:
-        return self.stack[-1]
+        if self.stack[-1] < 0:
+            return self.min
+        else:
+            return self.min + self.stack[-1]
         
 
     def getMin(self) -> int:
-        while self.nums[self.q[0]] == 0:
-            heappop(self.q)
-        return self.q[0]
+        return self.min
