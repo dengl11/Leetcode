@@ -6,12 +6,10 @@ class Solution:
         if len(S) - ck < ck-1: return ""
         segments = [k]*ck
         i = 0
-        S = sorted(S)
-        for c in S:
-            if c == k: continue
-            # while c == segments[i][-1]:
-            #     i = (i + 1) % ck
-            segments[i] += c
-            i = (i + 1) % ck
+        for ch, cnt in c.items():
+            if ch == k: continue
+            for _ in range(cnt):
+                segments[i] += ch
+                i = (i + 1) % ck
             
         return "".join(segments)
