@@ -1,16 +1,16 @@
+from functools import lru_cache
 class Solution:
     def checkValidString(self, s: str) -> bool:
-        lo = hi = 0
-        for c in s:
-            if c == "(":
-                hi += 1
-                lo += 1
-            elif c == ")":
-                hi -= 1
-                lo -= 1
-            else:
-                hi += 1
-                lo -= 1
-            if hi < 0: return False
-            if lo < 0: lo = 0
-        return hi >= 0 and lo <= 0
+        n = len(s)
+        @lru_cache(None)
+        def check(i, j):
+            if i > j or i >= n: return True
+            if i == j: return s[i] == '*'
+            if s[i] == ')': return False
+            if s[i] == '*':
+                if check(i + 1, j): return True
+            for k in range(i+1, j+1):
+                if s[k] in [')', '*'] and check(i+1, k-1) and check(k+1, j): return True
+            return False
+        return check(0, n - 1)
+            
